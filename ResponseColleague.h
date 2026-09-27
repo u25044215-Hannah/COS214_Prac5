@@ -4,7 +4,6 @@
 #include <string>
 
 class ResponseMediator;
-class Incident;
 
 class ResponseColleague
 {
@@ -15,11 +14,6 @@ public:
     void setMediator(ResponseMediator* mediator);
 
     const std::string& getName() const;
-
-    virtual void receive(
-        const std::string& event,
-        Incident& incident
-    ) = 0;
 
 protected:
     ResponseMediator* mediator_;
