@@ -1,21 +1,22 @@
-#ifndef RESPONSECOLLEAGUE_H
-#define RESPONSECOLLEAGUE_H
+#include "ResponseColleague.h"
+#include "ResponseMediator.h"
 
-#include <string>
+ResponseColleague::ResponseColleague(const std::string& name)
+    : mediator_(nullptr),
+      name_(name)
+{
+}
 
-class ResponseMediator;
+ResponseColleague::~ResponseColleague()
+{
+}
 
-class ResponseColleague {
-protected:
-    ResponseMediator* mediator_; // non-owning
-    std::string name_;
+void ResponseColleague::setMediator(ResponseMediator* mediator)
+{
+    mediator_ = mediator;
+}
 
-public:
-    explicit ResponseColleague(const std::string& name);
-    virtual ~ResponseColleague() {}
-
-    void setMediator(ResponseMediator* mediator);
-    const std::string& getName() const;
-};
-
-#endif
+const std::string& ResponseColleague::getName() const
+{
+    return name_;
+}
