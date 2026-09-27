@@ -7,51 +7,66 @@
 
 class IncidentObserver;
 
-/*
- * Incident keeps the group's existing State + Observer implementation.
- * Compatibility helpers (one-argument constructor, progress(), describe())
- * are included so the integrated CampusGuard main/facade can also use it.
- */
+enum class IncidentStatus
+{
+    REPORTED,
+    ACTIVE,
+    CONTAINED,
+    RESOLVED,
+    CANCELLED
+};
+
+std::string incidentStatusToString(IncidentStatus status);
+
 class Incident
 {
 public:
-    // Existing group constructor.
-    Incident(const std::string &id,
-             const std::string &location,
+    // Constructor used by IncidentRegistry / Command / Mediator code.
+    Incident(int id, const std::string &location, const std::string &description);
+
+    // Original State + Observer constructor retained for compatibility.
+    Incident(const std::string &id, const std::string &location,
              const std::string &description);
 
-    // Compatibility constructor used by the integrated CampusGuard scenarios.
+    // Convenience constructor used by the integrated demo.
     explicit Incident(const std::string &description);
 
     void attach(IncidentObserver *obs);
     void detach(IncidentObserver *obs);
 
-    // Existing lifecycle transitions.
+    // State-pattern lifecycle operations.
     void dispatch();
     void contain();
     void resolve();
-
-    // Integrated-model helper: advances to the next lifecycle state.
     void progress();
-
-    // Called by IncidentState implementations only.
     void setState(IncidentState &next);
 
+    // API required by Registry, Commands and ResponseUnits.
+    int getId() const { return numericId_; }
+    int getID() const { return numericId_; } // compatibility spelling
+    const std::string &getLocation() const { return location_; }
+    const std::string &getDescription() const { return description_; }
+    IncidentStatus getStatus() const { return status_; }
+    void setStatus(IncidentStatus status);
+
+    // API retained by the original State + Observer implementation.
     const std::string &id() const { return id_; }
     const std::string &location() const { return location_; }
     const std::string &description() const { return description_; }
     std::string stateName() const { return state_->name(); }
 
-    // Integrated-model helper used when displaying an incident.
     std::string describe() const;
 
 private:
     void notify(const std::string &oldState, const std::string &newState);
+    void syncStatusFromState();
 
+    int numericId_;
     std::string id_;
     std::string location_;
     std::string description_;
     IncidentState *state_;                      // non-owning singleton State
+    IncidentStatus status_;
     std::vector<IncidentObserver *> observers_; // non-owning
 };
 
